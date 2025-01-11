@@ -4,19 +4,22 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
-  CANSparkMax leftClimber;
+  SparkMax leftClimber;
 
-  CANSparkMax rightClimber;
+  SparkMax rightClimber;
 
   RelativeEncoder leftEncoder;
   RelativeEncoder rightEncoder;
@@ -27,20 +30,25 @@ public class Climber extends SubsystemBase {
    * climber.
    */
   public Climber() {
-    leftClimber = new CANSparkMax(ClimberConstants.leftMotorID, MotorType.kBrushless);
-    rightClimber = new CANSparkMax(ClimberConstants.rightMotorID, MotorType.kBrushless);
+    SparkMaxConfig leftConfig = new SparkMaxConfig();
+    SparkMaxConfig rightConfig = new SparkMaxConfig();
 
-    leftClimber.restoreFactoryDefaults();
-    rightClimber.restoreFactoryDefaults();
+    leftClimber = new SparkMax(ClimberConstants.leftMotorID, MotorType.kBrushless);
+    rightClimber = new SparkMax(ClimberConstants.rightMotorID, MotorType.kBrushless);
 
-    leftClimber.setInverted(ClimberConstants.leftInvert);
-    rightClimber.setInverted(ClimberConstants.rightInvert);
+    leftConfig.inverted(ClimberConstants.leftInvert);
+    rightConfig.inverted(ClimberConstants.rightInvert);
 
-    leftClimber.setIdleMode(IdleMode.kBrake);
-    rightClimber.setIdleMode(IdleMode.kBrake);
+    leftConfig.idleMode(IdleMode.kBrake);
+    rightConfig.idleMode(IdleMode.kBrake);
 
     leftEncoder = leftClimber.getEncoder();
     rightEncoder = rightClimber.getEncoder();
+
+    leftClimber.configure(
+        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rightClimber.configure(
+        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     resetPostion();
   }

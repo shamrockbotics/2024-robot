@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,9 +18,9 @@ import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  CANSparkFlex upperIntakeMotor;
+  SparkFlex upperIntakeMotor;
 
-  CANSparkFlex lowerIntakeMotor;
+  SparkFlex lowerIntakeMotor;
 
   RelativeEncoder upperEncoder;
   RelativeEncoder lowerEncoder;
@@ -29,22 +32,30 @@ public class Intake extends SubsystemBase {
    * and encoders.
    */
   public Intake() {
-    inputBreak = new DigitalInput(IntakeConstants.intakeBreakID);
+    SparkFlexConfig upperConfig = new SparkFlexConfig();
+    SparkFlexConfig lowerConfig = new SparkFlexConfig();
 
-    upperIntakeMotor = new CANSparkFlex(IntakeConstants.upIntakeID, MotorType.kBrushless);
-    upperIntakeMotor.restoreFactoryDefaults();
-    upperIntakeMotor.setInverted(IntakeConstants.upInvert);
-    upperIntakeMotor.enableVoltageCompensation(Constants.voltageComp);
-    upperIntakeMotor.setSmartCurrentLimit(60);
+    upperIntakeMotor = new SparkFlex(IntakeConstants.upIntakeID, MotorType.kBrushless);
+    lowerIntakeMotor = new SparkFlex(IntakeConstants.lowIntakeID, MotorType.kBrushless);
 
-    lowerIntakeMotor = new CANSparkFlex(IntakeConstants.lowIntakeID, MotorType.kBrushless);
-    lowerIntakeMotor.restoreFactoryDefaults();
-    lowerIntakeMotor.enableVoltageCompensation(Constants.voltageComp);
-    lowerIntakeMotor.setInverted(IntakeConstants.lowInvert);
-    lowerIntakeMotor.setSmartCurrentLimit(60);
+    upperConfig.voltageCompensation(Constants.voltageComp);
+    lowerConfig.voltageCompensation(Constants.voltageComp);
+
+    upperConfig.inverted(IntakeConstants.upInvert);
+    lowerConfig.inverted(IntakeConstants.lowInvert);
+
+    upperConfig.smartCurrentLimit(60);
+    lowerConfig.smartCurrentLimit(60);
+
+    upperIntakeMotor.configure(
+        upperConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    lowerIntakeMotor.configure(
+        lowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     upperEncoder = upperIntakeMotor.getEncoder();
     lowerEncoder = lowerIntakeMotor.getEncoder();
+
+    inputBreak = new DigitalInput(IntakeConstants.intakeBreakID);
   }
 
   /**

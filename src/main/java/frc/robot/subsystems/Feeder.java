@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,8 +13,8 @@ import frc.robot.Constants.FeederConstants;
 
 public class Feeder extends SubsystemBase {
 
-  CANSparkFlex topFeeder;
-  CANSparkFlex bottomFeeder;
+  SparkFlex topFeeder;
+  SparkFlex bottomFeeder;
 
   DigitalInput feedBreak;
 
@@ -20,22 +23,26 @@ public class Feeder extends SubsystemBase {
    * the robot. It initializes and configures the motors and sensors used by the feeder.
    */
   public Feeder() {
+    SparkFlexConfig topConfig = new SparkFlexConfig();
+    SparkFlexConfig bottomConfig = new SparkFlexConfig();
+
+    topFeeder = new SparkFlex(FeederConstants.topFeederID, MotorType.kBrushless);
+    bottomFeeder = new SparkFlex(FeederConstants.bottomFeederID, MotorType.kBrushless);
+
+    topConfig.inverted(FeederConstants.topInvert);
+    bottomConfig.inverted(FeederConstants.bottomInvert);
+
+    topConfig.idleMode(IdleMode.kCoast);
+    bottomConfig.idleMode(IdleMode.kCoast);
+
+    topConfig.smartCurrentLimit(40);
+    bottomConfig.smartCurrentLimit(40);
+
+    topFeeder.configure(topConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    bottomFeeder.configure(
+        bottomConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     feedBreak = new DigitalInput(FeederConstants.feedBrakeID);
-
-    topFeeder = new CANSparkFlex(FeederConstants.topFeederID, MotorType.kBrushless);
-    bottomFeeder = new CANSparkFlex(FeederConstants.bottomFeederID, MotorType.kBrushless);
-
-    topFeeder.restoreFactoryDefaults();
-    bottomFeeder.restoreFactoryDefaults();
-
-    topFeeder.setInverted(FeederConstants.topInvert);
-    bottomFeeder.setInverted(FeederConstants.bottomInvert);
-
-    topFeeder.setIdleMode(IdleMode.kCoast);
-    bottomFeeder.setIdleMode(IdleMode.kCoast);
-
-    topFeeder.setSmartCurrentLimit(40);
-    bottomFeeder.setSmartCurrentLimit(40);
   }
 
   /**

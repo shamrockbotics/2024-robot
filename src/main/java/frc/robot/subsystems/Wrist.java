@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,8 +21,8 @@ public class Wrist extends SubsystemBase {
   /** Creates a new Intake. */
   DutyCycleEncoder angleEncoder;
 
-  CANSparkMax leftMotor;
-  CANSparkMax rightMotor;
+  SparkMax leftMotor;
+  SparkMax rightMotor;
 
   PIDController angleController;
   PIDController angleControllerHigh;
@@ -34,7 +37,7 @@ public class Wrist extends SubsystemBase {
    * <p>Key Components: DutyCycleEncoder: It reads PWM signals and outputs the duty cycle as a
    * percentage. Here, it's being used as an encoder for the wrist angle.
    *
-   * <p>CANSparkMax: These are types of motor controllers with built-in encoders. There are two of
+   * <p>SparkMax: These are types of motor controllers with built-in encoders. There are two of
    * these, leftMotor and rightMotor, controlling the two motors on the wrist respectively.
    *
    * <p>PIDController: These are used to control the wrist angles. Two PID controllers,
@@ -48,27 +51,32 @@ public class Wrist extends SubsystemBase {
    * motors, this decides the direction of rotations when a positive input is given.
    */
   public Wrist() {
+    SparkMaxConfig leftConfig = new SparkMaxConfig();
+    SparkMaxConfig rightConfig = new SparkMaxConfig();
+
+    leftMotor = new SparkMax(WristConstants.wristID, MotorType.kBrushless);
+    rightMotor = new SparkMax(WristConstants.wrist2ID, MotorType.kBrushless);
+
+    leftConfig.voltageCompensation(Constants.voltageComp);
+    rightConfig.voltageCompensation(Constants.voltageComp);
+
+    leftConfig.idleMode(IdleMode.kBrake);
+    rightConfig.idleMode(IdleMode.kBrake);
+
+    leftConfig.inverted(WristConstants.rightInvert);
+    rightConfig.inverted(WristConstants.leftInvert);
+
+    leftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rightMotor.configure(
+        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     angleEncoder = new DutyCycleEncoder(WristConstants.wristPort);
-
-    leftMotor = new CANSparkMax(WristConstants.wristID, MotorType.kBrushless);
-    leftMotor.restoreFactoryDefaults();
-    leftMotor.enableVoltageCompensation(Constants.voltageComp);
-
-    rightMotor = new CANSparkMax(WristConstants.wrist2ID, MotorType.kBrushless);
-    rightMotor.restoreFactoryDefaults();
-    rightMotor.enableVoltageCompensation(Constants.voltageComp);
 
     angleControllerHigh = new PIDController(0.0085, 0, 0);
     angleController =
         new PIDController(WristConstants.wristP, WristConstants.wristI, WristConstants.wristD);
 
     angleController.setTolerance(3);
-
-    rightMotor.setIdleMode(IdleMode.kBrake);
-    leftMotor.setIdleMode(IdleMode.kBrake);
-
-    rightMotor.setInverted(WristConstants.rightInvert);
-    leftMotor.setInverted(WristConstants.leftInvert);
   }
 
   /**
@@ -114,7 +122,7 @@ public class Wrist extends SubsystemBase {
    * @return The angle of the wrist in degrees.
    */
   public double getDegrees() {
-    double degrees = 360 * (angleEncoder.getAbsolutePosition()) - WristConstants.offset;
+    double degrees = 360 * (angleEncoder.get()) - WristConstants.offset;
 
     if (degrees > 360) {
       degrees -= 360;

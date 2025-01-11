@@ -2,10 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -17,7 +13,6 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -136,45 +131,6 @@ public class Swerve extends SubsystemBase {
             // stateStdDevs,
             // visionStdDevs
             );
-
-    AutoBuilder.configureHolonomic(
-        this::getOdomPose,
-        this::resetPose,
-        () -> DriveConstants.swerveKinematics.toChassisSpeeds(getModuleStates()),
-        speeds -> {
-          // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-          speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
-          SwerveModuleState[] swerveModuleStates =
-              DriveConstants.swerveKinematics.toSwerveModuleStates(speeds);
-          setModuleStates(swerveModuleStates);
-        },
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
-            // your
-            // Constants class
-            new PIDConstants( // Translation PID constants
-                Auto.AutoDriveP, Auto.AutoDriveI, Auto.AutoDriveD),
-            new PIDConstants( // Rotation PID constants
-                Auto.AutoTurnP, Auto.AutoTurnI, Auto.AutoTurnD),
-            Auto.MaxSpeed, // Max module speed, in m/s
-            DriveConstants
-                .CenterToWheel, // Drive base radius in meters. Distance from robot center to
-            // furthest module.
-            new ReplanningConfig(
-                true, true) // Default path replanning config. See the API for the options
-            // here
-            ),
-        () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red
-          // alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        this);
 
     // SwerveTable =
     // NetworkTableInstance.getDefault().getTable(VisionConstants.camName);
