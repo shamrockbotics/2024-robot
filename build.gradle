@@ -150,3 +150,6 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+// Configure build to run spotless
+build.dependsOn 'spotlessApply'

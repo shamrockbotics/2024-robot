@@ -63,8 +63,8 @@ public class Wrist extends SubsystemBase {
     leftConfig.idleMode(IdleMode.kBrake);
     rightConfig.idleMode(IdleMode.kBrake);
 
-    leftConfig.inverted(WristConstants.rightInvert);
-    rightConfig.inverted(WristConstants.leftInvert);
+    leftConfig.inverted(WristConstants.leftInvert);
+    rightConfig.inverted(WristConstants.rightInvert);
 
     leftMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightMotor.configure(
@@ -207,5 +207,6 @@ public class Wrist extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Wrist Encoder", getDegrees());
+    SmartDashboard.putNumber("Wrist Encoder Setpoint", getTarget());
   }
 }

@@ -154,7 +154,7 @@ public class SwerveModule {
    */
   public Rotation2d getCanCoder() {
     return Rotation2d.fromRadians(
-        angleEncoder.getAbsolutePosition().getValue().in(Units.Radians) * 2 * Math.PI);
+        angleEncoder.getAbsolutePosition().getValue().in(Units.Radians));
   }
 
   /*

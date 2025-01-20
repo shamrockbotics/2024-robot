@@ -129,7 +129,7 @@ public class RobotContainer {
     // m_robotState));
 
     /* Autos */
-    autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = new SendableChooser<Command>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     SmartDashboard.putData(new PowerDistribution());
